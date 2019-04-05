@@ -1,0 +1,3 @@
+ec2_key: "{{ lookup('ENV', 'EC2_KEY') }}"
+ec2_region: "{{ lookup('ENV', 'EC2_REGION') }}"
+ec2_user: "{{ ansible_user }}"
