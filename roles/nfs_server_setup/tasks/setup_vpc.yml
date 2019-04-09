@@ -1,0 +1,110 @@
+- name: Get AWS account information
+  aws_caller_facts:
+  register: caller_facts
+
+- name: Create VPC
+  ec2_vpc_net:
+    name: "nfs-server"
+    cidr_block: "{{ nfs_cidr }}"
+    region: "{{ ec2_region }}"
+    tags:
+      creator: "nfs-server"
+  register: ec2_vpc
+
+- debug:
+    var: ec2_vpc
+
+- name: Create VPC subnet
+  ec2_vpc_subnet:
+    state: present
+    vpc_id: "{{ ec2_vpc.vpc.id }}"
+    cidr: "{{ nfs_subnet_cidr }}"
+    region: "{{ ec2_region }}"
+    resource_tags:
+      creator: nfs-server
+  register: ec2_subnet
+
+- debug:
+    var: ec2_subnet
+
+- name: Create VPC Internet Gateway
+  ec2_vpc_igw:
+    vpc_id: "{{ ec2_vpc.vpc.id }}"
+    region: "{{ ec2_region }}"
+    tags:
+      Name: nfs-server
+  register: ec2_igw
+
+- debug:
+    var: ec2_igw
+
+- name: Create VPC Routing Table
+  ec2_vpc_route_table:
+    vpc_id: "{{ ec2_vpc.vpc.id }}"
+    region: "{{ ec2_region }}"
+    tags:
+      Name: nfs-server
+    subnets:
+    - "{{ ec2_subnet.subnet.id }}"
+    routes:
+    - dest: "0.0.0.0/0"
+      gateway_id: "{{ ec2_igw.gateway_id }}"
+
+- name: Create Security Group
+  ec2_group:
+    name: nfs-server
+    description: nfs-server
+    vpc_id: "{{ ec2_vpc.vpc.id }}"
+    region: "{{ ec2_region }}"
+    rules_egress:
+    - proto: "all"
+      from_port: "0"
+      to_port: "65535"
+      cidr_ip: "0.0.0.0/0"
+    rules:
+    - proto: "tcp"
+      from_port: "22"
+      to_port: "22"
+      cidr_ip: "0.0.0.0/0"
+    - proto: "tcp"
+      from_port: "80"
+      to_port: "80"
+      cidr_ip: "0.0.0.0/0"
+    # Allow icmp 
+    - proto: icmp
+      from_port: -1
+      to_port: -1
+      cidr_ip: "0.0.0.0/0"
+    # portmapper and NFS ports allow
+    - proto: tcp
+      ports:
+        - 111
+        - 2049
+      cidr_ip: "0.0.0.0/0"
+    - proto: udp
+      ports:
+        - 111
+        - 2049
+      cidr_ip: "0.0.0.0/0"
+
+- name: Create Instance
+  local_action:
+    module: ec2
+    key_name: "{{ ec2_key }}"
+    instance_type: "m4.large"
+    group: nfs-server
+    image: "ami-c86c3f23"
+    count: 1
+    region: "{{ ec2_region }}"
+    vpc_subnet_id: "{{ ec2_subnet.subnet.id }}"
+    assign_public_ip: yes
+    instance_tags:
+      creator: ocp4-extender
+      creator_arn: "{{ caller_facts.arn }}"
+      user: "{{ ec2_user }}"
+      Name: "{{ ec2_user }}-nfs-server"
+    wait: yes
+  register: ec2_instance
+
+- debug:
+    var: ec2_instance

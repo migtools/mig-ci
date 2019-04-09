@@ -1,0 +1,8 @@
+- name: Create new vpc and instance for NFS server
+  import_tasks: setup_vpc.yml
+  
+- name: Extracting vpc id from cluster instance
+  import_tasks: extract_vpc.yml
+
+- name: Connect vpcs via peering connection
+  import_tasks: connect_vpcs.yml

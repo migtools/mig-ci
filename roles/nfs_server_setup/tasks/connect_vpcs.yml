@@ -1,0 +1,46 @@
+- name: Create local account VPC peering Connection
+  ec2_vpc_peer:
+    region: "{{ ec2_region }}"
+    vpc_id: "{{ source_vpc }}" 
+    peer_vpc_id: "{{ ec2_vpc.vpc.id }}"
+    state: present
+    tags:
+      Name: nfs-server
+  register: vpc_peer
+
+- debug:
+    var: vpc_peer
+
+- name: Accept local VPC peering request
+  ec2_vpc_peer:
+    region: "{{ ec2_region }}"
+    peering_id: "{{ vpc_peer.peering_id }}"
+    state: accept
+
+- name: Update NFS VPC Routing Table
+  ec2_vpc_route_table:
+    vpc_id: "{{ ec2_vpc.vpc.id }}"
+    region: "{{ ec2_region }}"
+    route_table_id: "{{ nfs_route_id }}"
+    lookup: id
+    purge_routes: no
+    purge_subnets: no
+    subnets:
+    - "{{ ec2_subnet.subnet.id }}"
+    routes:
+    - dest: "{{ source_cidr }}"  # Target is source cluster
+      vpc_peering_connection_id: "{{ vpc_peer.peering_id }}"
+
+- name: Update target cluster VPC Routing Table
+  ec2_vpc_route_table:
+    vpc_id: "{{ source_vpc }}"
+    region: "{{ ec2_region }}"
+    route_table_id: "{{ source_route_id }}"
+    lookup: id
+    purge_routes: no
+    purge_subnets: no
+    subnets:
+    - "{{ source_subnet }}"
+    routes:
+    - dest: "{{ nfs_cidr }}"  # Target is NFS
+      vpc_peering_connection_id: "{{ vpc_peer.peering_id }}"
