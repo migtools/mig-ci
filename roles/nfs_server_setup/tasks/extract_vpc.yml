@@ -4,7 +4,20 @@
       "tag:creator_arn": "{{ caller_facts.arn }}"
     region: "{{ ec2_region }}"
   register: ec2_metadata
+  tags: ocp3-origin
 
+# - name: Extract tag from metadata
+#   set_fact:
+#     ocp4_tag: "{{ lookup('file', ) }}"
+
+- ec2_instance_facts:
+    filters:
+      "tag:Name": "{{ ansible_user }}-origin3-dev"
+      "tag:creator_arn": "{{ caller_facts.arn }}"
+    region: "{{ ec2_region }}"
+  register: ec2_metadata
+  tags: ocp4
+  
 - debug:
     var: ec2_metadata
 

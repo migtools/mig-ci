@@ -87,6 +87,19 @@
         - 2049
       cidr_ip: "0.0.0.0/0"
 
+- name: Check instance is running
+  ec2_instance_facts:
+      region: "{{ ec2_region }}"
+      filters:
+        "tag:Name": "{{ ansible_user }}-nfs-server"
+        "tag:creator_arn": "{{ caller_facts.arn }}"
+        "tag:user": "{{ ansible_user }}"
+        "tag:creator": "ocp4-extender"
+  register: ec2_created
+
+- set_fact:
+    ec2_created: "{{ 'running' in (ec2_created.instances | selectattr('state') | map(attribute='state.name') | list | unique) }}"
+
 - name: Create Instance
   local_action:
     module: ec2
@@ -105,6 +118,7 @@
       Name: "{{ ec2_user }}-nfs-server"
     wait: yes
   register: ec2_instance
+  when: not ec2_created
 
 - debug:
     var: ec2_instance
