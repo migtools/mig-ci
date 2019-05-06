@@ -21,7 +21,7 @@
     - name: Create VPC
       ec2_vpc_net:
         name: "{{ instance_name }}"
-        cidr_block: "{{ nfs_cidr }}"
+        cidr_block: "{{ cidr }}"
         region: "{{ ec2_region }}"
         tags:
           creator: "{{ instance_name }}"
@@ -31,7 +31,7 @@
       ec2_vpc_subnet:
         state: present
         vpc_id: "{{ ec2_vpc.vpc.id }}"
-        cidr: "{{ nfs_subnet_cidr }}"
+        cidr: "{{ subnet_cidr }}"
         region: "{{ ec2_region }}"
         resource_tags:
           creator: "{{ instance_name }}"
@@ -59,6 +59,20 @@
 
     - name: Create Security Group
       include_tasks: "{{ security_group_type }}_security_group.yml"
+
+    - name: Add additional tags to the Security Group
+      block:
+        - ec2_group_facts:
+            region: "{{ ec2_region }}"
+            filters:
+              group-name: "{{ instance_name }}"
+          register: ec2_sec_gr
+
+        - ec2_tag:
+            resource: "{{ ec2_sec_gr.security_groups[0].group_id }}"
+            region: "{{ ec2_region }}"
+            tags: "{{ sec_group_additional_tags }}"
+      when: sec_group_additional_tags is defined
 
     - name: Find a Suitable AMI
       ec2_ami_facts:
