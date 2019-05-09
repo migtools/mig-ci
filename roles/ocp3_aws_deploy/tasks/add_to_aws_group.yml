@@ -1,0 +1,16 @@
+- name: Get AWS EC2 instance ip
+  include_role:
+    name: ec2_provision
+    tasks_from: get_ip
+  vars:
+    instance_name: "{{ aws_name_suffix }}-{{ instance_role }}-{{ number }}"
+
+- name: Add target EC2 host ip to group aws
+  add_host:
+    groups: aws
+    name: "{{ ec2_instance_ip }}"
+    ansible_user: ec2-user
+    ansible_ssh_private_key_file: "{{ ec2_private_key_file }}"
+    ansible_become: yes
+
+- include_tasks: add_oa_host_inventory.yml

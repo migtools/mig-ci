@@ -35,6 +35,11 @@
       test_command: whoami
       reboot_timeout: 600
 
+# Workaround for https://github.com/openshift/openshift-ansible/issues/11365
+- name: Change the hostname to a public one
+  hostname:
+      name: "{{ inventory_hostname }}.xip.io"
+
 - name: Configure docker storage
   copy:
     content: |

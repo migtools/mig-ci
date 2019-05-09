@@ -3,5 +3,8 @@
   run_once: true
 
 - include_tasks: aws_instance_provision.yml
-
-- include_tasks: add_oa_host_inventory.yml
+  vars:
+    role: "{{ item }}"
+  with_items:
+  - "master"
+  - "node"

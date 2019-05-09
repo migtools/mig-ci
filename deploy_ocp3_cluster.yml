@@ -6,6 +6,7 @@
 
 # AWS group is created in previous role
 - hosts: aws
+  strategy: free
   roles:
     - ocp3_aws_provision
   vars_files:
