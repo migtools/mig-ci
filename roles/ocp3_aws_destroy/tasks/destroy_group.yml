@@ -1,0 +1,8 @@
+- include_role:
+    name: ec2_provision
+    tasks_from: destroy_instance
+  vars:
+    instance_name: "{{ aws_name_suffix }}-{{ role }}-{{ num }}"
+  with_sequence: "count={{ instance_facts[role]['count'] | int }}"
+  loop_control:
+    loop_var: num

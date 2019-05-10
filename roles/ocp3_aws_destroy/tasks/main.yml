@@ -1,0 +1,6 @@
+- include_tasks: destroy_group.yml
+  vars:
+    role: "{{ item }}"
+  with_items:
+    - master
+    - node

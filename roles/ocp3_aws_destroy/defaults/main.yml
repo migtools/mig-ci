@@ -1,0 +1,37 @@
+ocp_version: "{{ lookup('env', 'OPENSHIFT_VERSION') or 'v3.11' }}"
+ocp_release:
+  'v3.11': '3.11'
+  'v3.10': '3.10'
+  'v3.9': 'v3.9'
+  'v3.7': 'v3.7'
+ocp_image_tag: "{{ ocp_version }}.0"
+aws_name_suffix: "aws-ocp-{{ ocp_version }}"
+sub_user: "{{ lookup('env', 'SUB_USER') or 'undefined' }}"
+sub_pass: "{{ lookup('env', 'SUB_PASS') or 'undefined' }}"
+aws_tags: "{{ {'kubernetes.io/cluster/' ~ rand_id: 'owned', 'clusterid': rand_id } }}"
+
+instance_facts:
+  master:
+    count: 1
+    node_group_tag: 'node-config-master'
+    groups:
+      - masters
+      - nodes
+      - OSEv3
+      - etcd
+
+  node:
+    count: 2
+    node_group_tag: 'node-config-compute'
+    groups:
+      - nodes
+      - OSEv3
+
+  all-in-one:
+    count: 1
+    node_group_tag: 'node-config-all-in-one'
+    groups:
+      - masters
+      - nodes
+      - OSEv3
+      - etcd
