@@ -3,7 +3,7 @@
     name: ec2_provision
     tasks_from: provision_instance
   vars:
-    instance_name: "{{ aws_name_suffix }}-{{ role }}-{{ number }}"
+    instance_name: "{{ aws_name_suffix }}"
     instance_type: m4.xlarge
     rhel_version: '7.5'
     security_group_type: ocp3

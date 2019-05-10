@@ -13,4 +13,22 @@
     ansible_ssh_private_key_file: "{{ ec2_private_key_file }}"
     ansible_become: yes
 
+- name: Add host to masters
+  add_host:
+    groups: aws-master
+    name: "{{ ec2_instance_ip }}"
+    ansible_user: ec2-user
+    ansible_ssh_private_key_file: "{{ ec2_private_key_file }}"
+    ansible_become: yes
+  when: instance_role == 'master'
+
+- name: Add host to nodes
+  add_host:
+    groups: aws-node
+    name: "{{ ec2_instance_ip }}"
+    ansible_user: ec2-user
+    ansible_ssh_private_key_file: "{{ ec2_private_key_file }}"
+    ansible_become: yes
+  when: instance_role == 'node'
+
 - include_tasks: add_oa_host_inventory.yml

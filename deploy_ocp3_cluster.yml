@@ -19,7 +19,7 @@
   import_playbook: "{{ lookup('env', 'WORKSPACE') or '../'}}/openshift-ansible/playbooks/deploy_cluster.yml"
 
 # Post tasks
-- hosts: aws
+- hosts: aws-master
   vars_files:
     - "{{ playbook_dir }}/config/defaults.yml"
   vars:

@@ -1,3 +1,6 @@
+# Source: https://gitlab.sat.engineering.redhat.com/rhci/vm_env/tree/master/openshift/aos-3.11
+# Author: Jason Montleon - https://gitlab.sat.engineering.redhat.com/jmontleo
+
 - name: Add openshift ansible inventory
   add_host:
     # Ansible connection

@@ -8,7 +8,10 @@ ocp_image_tag: "{{ ocp_version }}.0"
 aws_name_suffix: "aws-ocp-{{ ocp_version }}"
 sub_user: "{{ lookup('env', 'SUB_USER') or 'undefined' }}"
 sub_pass: "{{ lookup('env', 'SUB_PASS') or 'undefined' }}"
-aws_tags: "{{ {'kubernetes.io/cluster/' ~ rand_id: 'owned', 'clusterid': rand_id } }}"
+aws_tags: "{{ {
+  'kubernetes.io/cluster/' ~ rand_id: 'owned',
+  'clusterid': rand_id,
+  'Name': ansible_user + '-' + aws_name_suffix + '-' + role + '-' + number } }}"
 
 instance_facts:
   master:
