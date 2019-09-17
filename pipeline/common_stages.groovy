@@ -52,7 +52,7 @@ def deploy_ocp3_agnosticd(kubeconfig) {
             'aws_secret_access_key': "${AWS_SECRET_ACCESS_KEY}",
             'email': "${EMAIL}",
             'output_dir': "${WORKSPACE}",
-            'update_packages': 'false',
+            'update_packages': "${OCP3_UPDATE}",
             'support_instance_public_dns': 'true',
             'nfs_server_address': "support1.${CLUSTER_NAME}-v3-${BUILD_NUMBER}${BASESUFFIX}",
             'nfs_exports_config': "*(insecure,rw,no_root_squash,no_wdelay,sync)",
