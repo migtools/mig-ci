@@ -82,8 +82,8 @@
       
 - name: Deploy mig operator
   k8s:
-    state : present
-    definition: "{{ lookup('file', '{{ mig_operator_location }}/deploy/non-olm/{{ mig_operator_tag }}/operator.yml' )}}"
+    state: present
+    src: "{{ mig_operator_location }}/deploy/non-olm/{{ mig_operator_tag }}/operator.yml"
   register: deploy_op
   until: deploy_op is success
   retries: 12
