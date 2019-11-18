@@ -84,6 +84,10 @@
   k8s:
     state : present
     definition: "{{ lookup('file', '{{ mig_operator_location }}/deploy/non-olm/{{ mig_operator_tag }}/operator.yml' )}}"
+  register: deploy_op
+  until: deploy_op is success
+  retries: 12
+  delay: 10
   when: not mig_operator_use_olm|bool 
 
 - name: "Wait for mig operator deployment to settle"
