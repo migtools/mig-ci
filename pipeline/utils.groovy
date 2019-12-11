@@ -67,7 +67,7 @@ def prepare_agnosticd() {
   // Set agnosticd HOME and add to destroy script
   AGNOSTICD_HOME = "${env.WORKSPACE}/agnosticd"
   sh "echo 'export AGNOSTICD_HOME=${AGNOSTICD_HOME}' >> destroy_env.sh"
-  
+
   withCredentials([
     string(credentialsId: "$EC2_ACCESS_KEY_ID", variable: 'AWS_ACCESS_KEY_ID'),
     string(credentialsId: "$EC2_SECRET_ACCESS_KEY", variable: 'AWS_SECRET_ACCESS_KEY'),
@@ -91,6 +91,7 @@ def prepare_agnosticd() {
         writeYaml file: 'secret.yml', data: secret_vars
         }
        sh "echo 'export AWS_REGION=${AWS_REGION} AWS_ACCESS_KEY=${AWS_ACCESS_KEY_ID} AWS_SECRET_ACCESS_KEY=${AWS_SECRET_ACCESS_KEY}' >> destroy_env.sh"
+
      }
 }
 
@@ -99,11 +100,11 @@ def prepare_workspace(src_version = '', dest_version = '') {
   KEYS_DIR = "${env.WORKSPACE}" + '/keys'
   sh "mkdir -p ${KEYS_DIR}"
   sh "mkdir -p ${env.WORKSPACE}/kubeconfigs"
-  
+
   // Define kubeconfig locations based on version of source and dest clusters
   if ("${src_version}" != '') {
     SOURCE_KUBECONFIG = "${env.WORKSPACE}/kubeconfigs/ocp-${src_version}-kubeconfig"
-    
+
     if(src_version.startsWith("3.")) {
       SRC_IS_OCP3 = "true"
       echo "SRC_CLUSTER is OCP3: ${SRC_IS_OCP3}"
@@ -114,7 +115,7 @@ def prepare_workspace(src_version = '', dest_version = '') {
 
   if ("${dest_version}" != '') {
     TARGET_KUBECONFIG = "${env.WORKSPACE}/kubeconfigs/ocp-${dest_version}-kubeconfig"
-    
+
     if(dest_version.startsWith("3.")) {
       DEST_IS_OCP3 = "true"
       echo "DEST_CLUSTER is OCP3: ${DEST_IS_OCP3}"
@@ -229,6 +230,20 @@ def run_debug(kubeconfig) {
   withEnv([ "KUBECONFIG=${kubeconfig}" ]) {
     sh "${DEBUG_SCRIPT} ${DEBUG_SCRIPT_ARGS} || true"
   }
+}
+
+def install_cam() {
+  sh 'sudo scripts/setup_podman_env.sh'
+  withCredentials([
+    string(credentialsId: "$EC2_SUB_USER", variable: 'SUB_USER'),
+    string(credentialsId: "$EC2_SUB_PASS", variable: 'SUB_PASS'),
+    ])
+      {
+        def user = SUB_USER
+        def pass = SUB_PASS
+        sh "podman login registry.redhat.io -u${user} -p${pass}"
+        sh "podman create registry.redhat.io/rhcam-1-0/openshift-migration-rhel7-operator:v1.0"
+      }
 }
 
 return this

@@ -29,7 +29,6 @@ booleanParam(defaultValue: true, description: 'Provision glusterfs workload on O
 booleanParam(defaultValue: false, description: 'Persistent cluster builds with fixed hostname', name: 'PERSISTENT'),
 booleanParam(defaultValue: true, description: 'Clean up workspace after build', name: 'CLEAN_WORKSPACE'),
 booleanParam(defaultValue: true, description: 'EC2 terminate instances after build', name: 'EC2_TERMINATE_INSTANCES')])])
-
 // true/false build parameter that defines if we terminate instances once build is done
 EC2_TERMINATE_INSTANCES = params.EC2_TERMINATE_INSTANCES
 // true/false build parameter that defines if we cleanup workspace once build is done
@@ -63,6 +62,7 @@ node {
             utils.prepare_workspace(SRC_CLUSTER_VERSION, '')
             utils.copy_private_keys()
             utils.prepare_agnosticd()
+            utils.install_cam()
         }
 
         common_stages.deploy_ocp3_agnosticd(SOURCE_KUBECONFIG, SRC_CLUSTER_VERSION).call()
