@@ -12,7 +12,7 @@ WITH_CONTROLLER="false"
 WITH_SUBSCRIPTION=${WITH_SUBSCRIPTION:-false}
 WITH_OPERATOR_LOGS=${WITH_OPERATOR_LOGS:-false}
 WITH_VELERO_LOGS=${WITH_VELERO_LOGS:-false}
-E2E_NS=${E2E_NS:-"sock-shop robot-shop parks-app mssql-example mediawiki mysql-persistent ocp-25000-sets ocp-25021-cronjob ocp-25090-jobs ocp-25212-initcont ocp-24997-confmap ocp-24995-role ocp-25986-maxpods nginx-pv ocp-24659-mysql ocp-24686-project ocp-24769-cakephp ocp-26032-maxns ocp-26160-max-pvs ocp-24787-redis ocp-24797-mongodb"}
+E2E_NS=${E2E_NS:-"sock-shop robot-shop parks-app mssql-example mediawiki mysql-persistent ocp-25000-sets ocp-25021-cronjob ocp-25090-jobs ocp-25212-initcont ocp-24997-confmap ocp-24995-role ocp-25986-maxpods nginx-pv ocp-24659-mysql ocp-24686-project ocp-24769-cakephp ocp-26032-maxns ocp-26160-max-pvs max-pvs-1 max-pvs-2 max-pvs-3 ocp-24787-redis ocp-24797-mongodb"}
 DATE=`date`
 
 # Process arguments if passed, assume defaults otherwise
@@ -87,12 +87,6 @@ echo
 echo "##### Print all resources on ${MIG_NS} namespace #####"
 echo
 ${OC_BINARY} -n ${MIG_NS} get all
-echo
-
-echo
-echo "##### Print OLM sub on ${MIG_NS} namespace #####"
-echo
-${OC_BINARY} -n ${MIG_NS} describe subscription
 echo
 
 echo
@@ -239,6 +233,7 @@ for ns in ${E2E_NS}; do
         		${OC_BINARY} -n ${ns} describe pods
         		echo
 		fi
+		echo
 		unset e2e_bad_pods get_e2e_bad_pods
 	fi
 done
